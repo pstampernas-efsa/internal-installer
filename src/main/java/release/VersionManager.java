@@ -3,6 +3,9 @@ package release;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import config.GithubConfig;
 import config.GithubChecker;
 import dialog.ProgressDialog;
@@ -16,6 +19,8 @@ import zip_manager.ZipManager;
  *
  */
 public class VersionManager {
+	
+	private static final Logger LOGGER = LogManager.getLogger(VersionManager.class);
 
 	private final static String INSTALL_OK_FILE = "\\install.ok";
 	private String lastRelease;
@@ -87,6 +92,7 @@ public class VersionManager {
 	public String getCurrentAppVersion() {
 		GithubConfig config = new GithubConfig();
 		String currentVersion = config.getApplicationVersion();
+		LOGGER.info("The current installed version is " + currentVersion);
 		return currentVersion;
 	}
 	
@@ -100,7 +106,7 @@ public class VersionManager {
 		ReleaseParser parser = getParserInstance();
 
 		String latestVersion = parser.getVersion();
-		
+		LOGGER.info("The latest released version published on github is " + latestVersion);
 		return latestVersion;
 	}
 	
@@ -118,9 +124,8 @@ public class VersionManager {
 		int compare = versionComparator.compare(currentVersion, latestVersion);
 		
 		if (compare == -1) {
-			
-			System.out.println("Need update " + currentVersion 
-				+ " => " + latestVersion);
+			LOGGER.info("The version needs update from " + currentVersion 
+					+ " => " + latestVersion);
 			return true;
 		}
 		
@@ -169,7 +174,7 @@ public class VersionManager {
 				}
 			}
 		}
-		
+		LOGGER.info("The filename of the file containing the last release: " + attachmentFilename);
 		return attachmentFilename;
 	}
 	
@@ -193,6 +198,8 @@ public class VersionManager {
 		tracker.moveNewFiles(unzippedFolder);
 		
 		createInstallOkFile();
+		
+		LOGGER.info("The update of the version was successful.");
 		
 	}
 	

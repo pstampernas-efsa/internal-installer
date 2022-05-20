@@ -11,6 +11,9 @@ import java.util.List;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import http.HttpManager;
 
 /**
@@ -20,6 +23,8 @@ import http.HttpManager;
  *
  */
 public class FileDownloader extends SwingWorker<Void, Integer> implements AutoCloseable {
+	
+	private static final Logger LOGGER = LogManager.getLogger(FileDownloader.class);
 	
 	private SwingWorkerFinishedListener swingWorkerFinishedListener;
 	
@@ -102,7 +107,7 @@ public class FileDownloader extends SwingWorker<Void, Integer> implements AutoCl
 		// compute the relative progress
 		double progress = ((contentDownloaded * 100)/ contentLength);
 		
-		System.out.println("Read " + bytesRead + " bytes; download progress: " + progress + " %");
+		LOGGER.info("Read " + bytesRead + " bytes; download progress: " + progress + " %");
 		
 		// update also the progress bar
 		if (this.progressBar != null)
@@ -125,7 +130,7 @@ public class FileDownloader extends SwingWorker<Void, Integer> implements AutoCl
 	@Override
 	protected void done() {
 		
-		System.out.println("Download finished");
+		LOGGER.info("Download finished");
 		
 		this.finished = true;
 		
