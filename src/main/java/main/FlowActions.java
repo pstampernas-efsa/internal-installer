@@ -8,6 +8,8 @@ import java.net.UnknownHostException;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import config.GithubConfig;
 import config.ProxyConfig;
@@ -16,6 +18,8 @@ import release.ProxyConfigException;
 import release.VersionManager;
 
 public class FlowActions {
+	
+	private static final Logger LOGGER = LogManager.getLogger(FlowActions.class);
 
 	private VersionManager check;
 
@@ -49,6 +53,7 @@ public class FlowActions {
 				official = check.getLatestOfficialVersion();
 			}
 		} catch (IOException e) {
+			LOGGER.error("There is an error upon updating process of the application", e);
 			e.printStackTrace();
 			launchApp();
 			return;
@@ -107,7 +112,7 @@ public class FlowActions {
 			launcher.launchApp();
 
 		} catch (InterruptedException | IOException e) {
-
+			LOGGER.error("There are errors concerning launch", e);
 			e.printStackTrace();
 
 			Warning.warnUser("Error",
@@ -131,7 +136,7 @@ public class FlowActions {
 
 		File fileInApp = new File(filename);
 
-		System.out.println("checking proxy file ... ");
+		LOGGER.info("checking proxy file ... ");
 
 		// create the directory
 		if (!fileInApp.exists()) {
@@ -139,8 +144,8 @@ public class FlowActions {
 			try {
 				FileUtils.copyFile(new File(proxyFile), fileInApp);
 			} catch (IOException e) {
+				LOGGER.error("Cannot copy proxy file!", e);
 				e.printStackTrace();
-				System.err.println("Cannot copy proxy file!");
 			}
 		}
 	}
@@ -148,6 +153,10 @@ public class FlowActions {
 	private void showConnectionError() {
 
 		ProxyConfig config = new ProxyConfig();
+		
+		LOGGER.warn("ERROR: Cannot download the latest version of the tool. Check your connection."
+				+ "If you are using a custom proxy address, please check also if proxy hostname and port are correct in the proxy configuration file (\""
+				+ config.getConfigPath() + ") ");
 
 		Warning.warnUser("Error",
 				"ERROR: Cannot download the latest version of the tool. Check your connection.\n"
@@ -161,6 +170,8 @@ public class FlowActions {
 
 		ProxyConfig config = new ProxyConfig();
 
+		LOGGER.warn("ERROR: Invalid proxy hostname/port " + proxyConfig + ".Check the proxy configuration file (" + config.getConfigPath() + ")");
+		
 		Warning.warnUser(
 				"Error", "ERROR: Invalid proxy hostname/port (" + proxyConfig
 						+ "). Check the proxy configuration file (" + config.getConfigPath() + ").",
@@ -183,7 +194,7 @@ public class FlowActions {
 			check.updateVersion();
 
 		} catch (IOException e) {
-
+			LOGGER.error("There is an error upon checking version", e);
 			e.printStackTrace();
 
 			if (e instanceof UnknownHostException) {
