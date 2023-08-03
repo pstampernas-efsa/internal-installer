@@ -18,10 +18,9 @@ import release.ProxyConfigException;
 import release.VersionManager;
 
 public class FlowActions {
-	
 	private static final Logger LOGGER = LogManager.getLogger(FlowActions.class);
 
-	private VersionManager check;
+	private final VersionManager check;
 
 	public FlowActions() {
 		check = new VersionManager();
@@ -31,12 +30,10 @@ public class FlowActions {
 	 * Start the update process
 	 */
 	public void start() {
-
 		// if no application is found install the latest version
 		// and launch it
 		if (!check.isApplicationInstalled()) {
 			boolean installed = installLatestVersion();
-
 			if (installed)
 				launchApp();
 			return;
@@ -88,12 +85,10 @@ public class FlowActions {
 	 * @return
 	 */
 	private boolean askConfirmationForInstall(String current, String official) {
-
 		// ask for installing the new version
 		// otherwise ask for downloading it
 		int val = Warning.askUser("Update needed!", "An update of the tool is available (" + current + " => " + official
 				+ ")" + ". Do you want to download it?", JOptionPane.INFORMATION_MESSAGE | JOptionPane.YES_NO_OPTION);
-
 		return val == JOptionPane.YES_OPTION;
 	}
 
@@ -101,16 +96,13 @@ public class FlowActions {
 	 * Launch the application
 	 */
 	private void launchApp() {
-
 		// check first if the proxy is inside the main app folder (only for win10
 		// installer!)
 		checkProxyFile();
 
 		AppLauncherDelegate launcher = new AppLauncherDelegate();
 		try {
-
 			launcher.launchApp();
-
 		} catch (InterruptedException | IOException e) {
 			LOGGER.error("There are errors concerning launch", e);
 			e.printStackTrace();
@@ -127,20 +119,14 @@ public class FlowActions {
 	 * from the installer folder (only for win10 internal users!)
 	 */
 	private void checkProxyFile() {
-
 		GithubConfig config = new GithubConfig();
-
 		String proxyFile = GithubConfig.getProxyPath();
-
 		String filename = config.getAppPath() + System.getProperty("file.separator") + proxyFile;
-
 		File fileInApp = new File(filename);
-
 		LOGGER.info("checking proxy file ... ");
 
 		// create the directory
 		if (!fileInApp.exists()) {
-
 			try {
 				FileUtils.copyFile(new File(proxyFile), fileInApp);
 			} catch (IOException e) {
@@ -151,9 +137,7 @@ public class FlowActions {
 	}
 
 	private void showConnectionError() {
-
 		ProxyConfig config = new ProxyConfig();
-		
 		LOGGER.warn("ERROR: Cannot download the latest version of the tool. Check your connection."
 				+ "If you are using a custom proxy address, please check also if proxy hostname and port are correct in the proxy configuration file (\""
 				+ config.getConfigPath() + ") ");
@@ -167,9 +151,7 @@ public class FlowActions {
 	}
 
 	private void showConfigurationError(String proxyConfig) {
-
 		ProxyConfig config = new ProxyConfig();
-
 		LOGGER.warn("ERROR: Invalid proxy hostname/port " + proxyConfig + ".Check the proxy configuration file (" + config.getConfigPath() + ")");
 		
 		Warning.warnUser(
@@ -179,7 +161,6 @@ public class FlowActions {
 	}
 
 	private void showUnknownHostError(String hostname) {
-
 		Warning.warnUser("Error", "ERROR: Unknown proxy hostname: " + hostname, JOptionPane.ERROR_MESSAGE);
 	}
 
@@ -189,10 +170,8 @@ public class FlowActions {
 	 * @return
 	 */
 	private boolean installLatestVersion() {
-
 		try {
 			check.updateVersion();
-
 		} catch (IOException e) {
 			LOGGER.error("There is an error upon checking version", e);
 			e.printStackTrace();
@@ -207,14 +186,12 @@ public class FlowActions {
 				String trace = Warning.getStackTrace(e);
 
 				Warning.warnUser("Generic error",
-						"XERRX: Generic runtime error. Please contact zoonoses_support@efsa.europa.eu. Error message "
+						"The update could not be downloaded. If you are on a corporate network, please try to connect to another network. If the issue persists ask for support in the relevant functional mailbox."
 								+ trace,
 						JOptionPane.ERROR_MESSAGE);
 			}
-
 			return false;
 		}
-
 		return true;
 	}
 }
